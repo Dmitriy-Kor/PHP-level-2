@@ -21,4 +21,29 @@ class Users extends ModelDb
     public static function getTableName() {
         return 'users';
     }
+
+    public static function auth($login = null, $pass = null)
+    {
+        $user = Users::getOneWhere('login', $login);
+        if ($pass == $user->pass){
+            $_SESSION['login'] = $login;
+            $_SESSION['id'] = $user->id;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static function isAuth() {
+        return isset($_SESSION['login']);
+    }
+
+    public static function isAdmin() {
+        return $_SESSION['login'] == 'admin';
+    }
+
+    public static function getName() {
+        return $_SESSION['login'];
+    }
+    
 }

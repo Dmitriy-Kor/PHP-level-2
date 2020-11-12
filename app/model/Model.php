@@ -17,14 +17,14 @@ abstract class Model implements IModel
 
     public function __get($name)
     {
-        if ($this->props[$name]) {
+        if (array_key_exists($name, $this->props)) {
             return $this->$name;
         }
+        return $this->$name;
     }
 
     public function __isset($name) {
-        if ($this->props[$name]) {
-            return true;
-        }
+        return isset($this->$name);
     }
+
 }

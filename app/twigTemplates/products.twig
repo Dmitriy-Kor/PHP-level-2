@@ -1,0 +1,30 @@
+<div class="products">
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					
+					<div class="product_grid">
+
+                        {% for item in catalog %}
+
+                        	<!-- Product -->
+
+                            <div class="product">
+
+							    <div class="product_image"><img src="images/{{ item.img }}" alt=""></div>
+							    <div class="product_extra product_new"><a href="/product">New</a></div>
+							    <div class="product_content">
+								    <div class="product_title"><a href="/product/card/?id={{ item.id }}">{{ item.name }}</a></div>
+								    <div class="product_price">{{ item.price }}</div>	
+							    </div>
+
+						    </div>
+							
+                        {% endfor %}
+
+					</div>
+						
+				</div>
+			</div>
+		</div>
+	</div>

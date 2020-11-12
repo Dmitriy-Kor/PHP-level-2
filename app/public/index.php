@@ -1,10 +1,10 @@
 <?php
+session_start();
 include dirname(__DIR__) . '/config/config.php'; // подключаем конфиг
 
 use app\engine\Autoload;
-use app\model\{Products, Users};
-use app\controllers\ProductController;
-use app\engine\Render;
+//use app\model\{Products, Users};
+//use app\controllers\ProductController;
 use app\engine\RenderTwig;
 
 include ROOT_DIR . '/engine/Autoload.php';
@@ -12,8 +12,10 @@ include ROOT_DIR . '/vendor/autoload.php';
 
 spl_autoload_register([new Autoload(), 'loadClass']);
 
-$controllerName = $_GET['c'] ?: 'product';
-$actionName = $_GET['a'];
+$url = explode('/',$_SERVER['REQUEST_URI']);
+
+$controllerName = $url[1] ?: 'product';
+$actionName = $url[2];
 
 $ControllerClass = CONTROLLER_NAMESPACE . ucfirst($controllerName) . "Controller";
 var_dump($ControllerClass);

@@ -6,6 +6,8 @@ use \app\engine\Db;
 
 abstract class ModelDb extends Model
 {
+    abstract static public function getTableName();
+
     public static function first($id)
     {
         $tableName = static::getTableName();
@@ -20,26 +22,25 @@ abstract class ModelDb extends Model
         return Db::getInstance()->queryAll($sql);
     }
 
-    public function insert()
-    {
+    public function insert() {
         $tableName = static::getTableName();
-        $placeholders = ":";
+
         $params = [];
+        $columns = [];
+
         foreach ($this->props as $key => $value) {
-            if ($key == 'id') continue;
-            $placeholders .= $key . ', :';
-            $params[":{$key}"] = $value;
+
+            $params[":{$key}"] = $this->$key;
+            $columns[] = "`$key`";
         }
-        $colums  = substr((str_replace(":", "", $placeholders)), 0, -2);
-        $placeholders = substr($placeholders, 0, -3);
 
-        //var_dump($params);
-        $sql = "INSERT INTO {$tableName} ($colums) VALUES ($placeholders)";
-        //echo $sql . '<br>';   
-
+        $columns = implode(", ", $columns);
+        $values = implode(", ", array_keys($params));
+        var_dump($params);
+        $sql = "INSERT INTO {$tableName} ({$columns}) VALUES ({$values})";
         Db::getInstance()->execute($sql, $params);
         $this->id = Db::getInstance()->lastInsertId();
-        //echo "This new id: " . $this->id . '<br>';
+
         return $this;
     }
 
@@ -63,18 +64,16 @@ abstract class ModelDb extends Model
     {
         $tableName = static::getTableName();
         $columsAndValues = '';
-        $columsName = '';
+
         var_dump($this->props);
         foreach ($this->props as $key => $value) {
             if ($value == true) {
                 $columsAndValues = "{$key} = '{$this->$key}'";
-                $columsName = $key;
             }
         }
 
         $sql = "UPDATE {$tableName} SET {$columsAndValues} WHERE id = :id";
         Db::getInstance()->execute($sql, ['id' => $this->id]);
-        //$this->props[$columsName] = false;
         
         foreach ($this->props as $key => $value) {
             if ($value == true) {
@@ -84,10 +83,24 @@ abstract class ModelDb extends Model
         var_dump($this->props);
     }
 
-    public static function getLimit($page){
+    public static function getLimit($page)
+    {
         $tableName = static::getTableName();
-    $sql = "SELECT * FROM {$tableName} LIMIT ?";
-    return Db::getInstance()->queryLimit($sql, $page);
+        $sql = "SELECT * FROM {$tableName} LIMIT ?";
+        return Db::getInstance()->queryLimit($sql, $page);
     }
-    abstract static public function getTableName();
+    
+    public static function getOneWhere($field, $value) {
+        $tableName = static::getTableName();
+        $sql = "SELECT * FROM {$tableName} WHERE `{$field}` = :value";
+        return Db::getInstance()->queryObject($sql,['value' => $value], static::class);
+    }
+    
+    public static function getCountWhere($field, $value) {
+        $tableName = static::getTableName();
+        $sql = "SELECT count(id) as count FROM {$tableName} WHERE `{$field}` = :value";
+        var_dump($sql);
+        return Db::getInstance()->queryOne($sql,['value' => $value])['count'];
+    }
 }
+ 
